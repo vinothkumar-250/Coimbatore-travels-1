@@ -1,27 +1,32 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('aws-creds')   // AWS Credentials ID in Jenkins
+        AWS_SECRET_ACCESS_KEY = credentials('aws-creds')
+    }
+
     stages {
-        stage('Manual Trigger') {
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/vinothkumar-250/Coimbatore-travels-1.git'
+            }
+        }
+
+        stage('Build WAR') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Deploy to AWS EB') {
             steps {
                 script {
-                    input message: "Do you want to proceed with the build?", ok: "Yes, Proceed"
+                    sh '''
+                    eb init Coimbatore-travels-1 --platform "Tomcat 10 with Corretto 21 running on 64bit Amazon Linux 2023" --region eu-north-1
+                    eb deploy Test-jenkins-env
+                    '''
                 }
-            }
-        }
-        stage('Clone Repository') {
-            steps {
-                git branch: 'main', url: 'https://github.com/vinothkumar-250/Coimbatore-travels-1.git'
-            }
-        }
-        stage('Build') {
-            steps {
-                sh 'echo "Build stage: Add your build commands here"'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'echo "Test stage: Run unit tests here"'
             }
         }
     }
