@@ -19,13 +19,22 @@ pipeline {
             }
         }
 
+        stage('Prepare Version') {
+            steps {
+                script {
+                    env.VERSION_LABEL = "build-${env.BUILD_NUMBER}"
+                    echo "Deploying version: ${env.VERSION_LABEL}"
+                }
+            }
+        }
+
         stage('Deploy to AWS EB') {
             steps {
                 script {
-                    sh '''
+                    sh """
                     eb init Coimbatore-travels-1 --platform "Tomcat 10 with Corretto 21 running on 64bit Amazon Linux 2023" --region eu-north-1
-                    eb deploy Test-jenkins-env
-                    '''
+                    eb deploy Test-jenkins-env --label ${env.VERSION_LABEL}
+                    """
                 }
             }
         }
