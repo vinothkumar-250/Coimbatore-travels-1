@@ -7,7 +7,8 @@ pipeline {
         AWS_REGION = "eu-north-1"
         APP_NAME = "Coimbatore-travels-1"
         ENV_NAME = "Test-jenkins-env"
-        S3_BUCKET = "test-bucket-98941"   // Your S3 Bucket Name
+        S3_BUCKET = "test-bucket-98941"
+        VERSION_LABEL = ""  // Initialize to avoid null values
     }
 
     stages {
@@ -19,7 +20,9 @@ pipeline {
 
         stage('Build WAR') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                script {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
 
@@ -28,6 +31,20 @@ pipeline {
                 script {
                     env.VERSION_LABEL = "build-${env.BUILD_NUMBER}"
                     echo "Deploying version: ${env.VERSION_LABEL}"
+                }
+            }
+        }
+
+        stage('Verify WAR File') {
+            steps {
+                script {
+                    sh "ls -lah target"  // Debug: List files in target directory
+                    sh """
+                    if [ ! -f target/*.war ]; then
+                        echo "ERROR: WAR file not found!"
+                        exit 1
+                    fi
+                    """
                 }
             }
         }
@@ -67,6 +84,14 @@ pipeline {
                         --region ${AWS_REGION}
                     """
                 }
+            }
+        }
+    }
+
+    post {
+        failure {
+            script {
+                echo "Pipeline failed! Please check the logs for errors."
             }
         }
     }
