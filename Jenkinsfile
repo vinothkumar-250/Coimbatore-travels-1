@@ -8,7 +8,6 @@ pipeline {
         APP_NAME = "Coimbatore-travels-1"
         ENV_NAME = "Test-jenkins-env"
         S3_BUCKET = "test-bucket-98941"
-        VERSION_LABEL = ""  // Initialize to avoid null values
     }
 
     stages {
