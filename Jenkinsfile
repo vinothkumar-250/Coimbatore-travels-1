@@ -4,6 +4,10 @@ pipeline {
     environment {
         AWS_ACCESS_KEY_ID = credentials('aws-creds')   // AWS Credentials ID in Jenkins
         AWS_SECRET_ACCESS_KEY = credentials('aws-creds')
+        AWS_REGION = "eu-north-1"
+        APP_NAME = "Coimbatore-travels-1"
+        ENV_NAME = "Test-jenkins-env"
+        S3_BUCKET = "test-bucket-98941"   // Your S3 Bucket Name
     }
 
     stages {
@@ -15,7 +19,7 @@ pipeline {
 
         stage('Build WAR') {
             steps {
-                sh 'mvn clean package'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
@@ -28,12 +32,39 @@ pipeline {
             }
         }
 
+        stage('Upload to S3') {
+            steps {
+                script {
+                    sh """
+                    aws s3 cp target/*.war s3://${S3_BUCKET}/${env.VERSION_LABEL}.war
+                    """
+                }
+            }
+        }
+
+        stage('Create EB Version') {
+            steps {
+                script {
+                    sh """
+                    aws elasticbeanstalk create-application-version \
+                        --application-name ${APP_NAME} \
+                        --version-label ${env.VERSION_LABEL} \
+                        --source-bundle S3Bucket="${S3_BUCKET}",S3Key="${env.VERSION_LABEL}.war" \
+                        --region ${AWS_REGION}
+                    """
+                }
+            }
+        }
+
         stage('Deploy to AWS EB') {
             steps {
                 script {
                     sh """
-                    eb init Coimbatore-travels-1 --platform "Tomcat 10 with Corretto 21 running on 64bit Amazon Linux 2023" --region eu-north-1
-                    eb deploy Test-jenkins-env --label ${env.VERSION_LABEL}
+                    aws elasticbeanstalk update-environment \
+                        --application-name ${APP_NAME} \
+                        --environment-name ${ENV_NAME} \
+                        --version-label ${env.VERSION_LABEL} \
+                        --region ${AWS_REGION}
                     """
                 }
             }
