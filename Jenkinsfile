@@ -8,6 +8,7 @@ pipeline {
         EB_APP_NAME = 'test'
         EB_ENV_NAME = 'test-env'
         S3_BUCKET_NAME = 'test-bucket-98941'
+        VERSION_LABEL = "build-${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -24,7 +25,7 @@ pipeline {
             steps {
                 script {
                     echo 'Building project using Maven...'
-                    sh 'mvn clean install'  // Modify this line if using another build tool
+                    sh 'mvn clean install'  // Modify if using another build tool
                 }
             }
         }
@@ -33,7 +34,7 @@ pipeline {
             steps {
                 script {
                     echo 'Uploading build artifacts to S3...'
-                    sh "aws s3 cp target/*.jar s3://${S3_BUCKET_NAME}/"  // Adjust file path if necessary
+                    sh "aws s3 cp target/*.jar s3://${S3_BUCKET_NAME}/${VERSION_LABEL}/"
                 }
             }
         }
@@ -42,10 +43,9 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying to AWS Elastic Beanstalk...'
-                    // Configure AWS EB CLI (ensure AWS CLI is configured with appropriate permissions)
                     sh 'eb init -p tomcat8 --region ${AWS_REGION} ${EB_APP_NAME}'
                     sh 'eb use ${EB_ENV_NAME}'
-                    sh 'eb deploy'
+                    sh "eb deploy --label ${VERSION_LABEL}"
                 }
             }
         }
@@ -54,7 +54,7 @@ pipeline {
     post {
         always {
             echo 'Cleaning up workspace...'
-            cleanWs()  // Clean workspace after the pipeline execution
+            cleanWs()
         }
         success {
             echo 'Build and deployment were successful!'
