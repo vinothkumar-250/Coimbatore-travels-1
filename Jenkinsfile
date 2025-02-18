@@ -8,56 +8,52 @@ pipeline {
         EB_APP_NAME = 'test'
         EB_ENV_NAME = 'test-env'
         S3_BUCKET_NAME = 'test-bucket-98941'
-        VERSION_LABEL = "build-${env.BUILD_NUMBER}"
+        VERSION_LABEL = "build-${BUILD_NUMBER}-${currentBuild.number}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    echo 'Cloning Git repository...'
-                    git branch: "${BRANCH}", url: "${GIT_REPO}"
-                }
+                git branch: "${BRANCH}", url: "${GIT_REPO}"
             }
         }
 
         stage('Build') {
             steps {
-                script {
-                    echo 'Building project using Maven...'
-                    sh 'mvn clean install'  // Modify if using another build tool
-                }
+                sh 'mvn clean install'
             }
         }
 
         stage('Upload to S3') {
             steps {
-                script {
-                    echo 'Uploading build artifacts to S3...'
-                    sh "aws s3 cp target/*.jar s3://${S3_BUCKET_NAME}/${VERSION_LABEL}/"
-                }
+                sh "aws s3 cp target/*.jar s3://${S3_BUCKET_NAME}/app-${VERSION_LABEL}.jar"
             }
         }
 
         stage('Deploy to Elastic Beanstalk') {
             steps {
-                script {
-                    echo 'Deploying to AWS Elastic Beanstalk...'
-                    sh 'eb init -p tomcat8 --region ${AWS_REGION} ${EB_APP_NAME}'
-                    sh 'eb use ${EB_ENV_NAME}'
-                    sh "eb deploy --label ${VERSION_LABEL}"
-                }
+                sh """
+                eb init -p tomcat8 --region ${AWS_REGION} ${EB_APP_NAME}
+                eb use ${EB_ENV_NAME}
+                aws elasticbeanstalk create-application-version \
+                    --application-name ${EB_APP_NAME} \
+                    --version-label "${VERSION_LABEL}" \
+                    --source-bundle S3Bucket=${S3_BUCKET_NAME},S3Key=app-${VERSION_LABEL}.jar
+                aws elasticbeanstalk update-environment \
+                    --application-name ${EB_APP_NAME} \
+                    --environment-name ${EB_ENV_NAME} \
+                    --version-label "${VERSION_LABEL}"
+                """
             }
         }
     }
 
     post {
         always {
-            echo 'Cleaning up workspace...'
             cleanWs()
         }
         success {
-            echo 'Build and deployment were successful!'
+            echo 'Build and deployment successful!'
         }
         failure {
             echo 'Build or deployment failed!'
