@@ -8,7 +8,7 @@ pipeline {
         EB_APP_NAME = 'test'
         EB_ENV_NAME = 'test-env'
         S3_BUCKET_NAME = 'test-bucket-98941'
-        VERSION_LABEL = "build-${BUILD_NUMBER}-${currentBuild.number}"
+        VERSION_LABEL = "build-${env.BUILD_NUMBER}-${env.currentBuild.number}-${env.JOB_NAME}"
     }
 
     stages {
