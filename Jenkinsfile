@@ -2,56 +2,65 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCESS_KEY_ID = credentials('aws-creds')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-creds')
-        AWS_REGION = "eu-north-1"
-        APP_NAME = "Coimbatore-travels-1"
-        ENV_NAME = "Test-jenkins-env"
-        ZIP_FILE = "application.zip"
+        GIT_REPO = 'https://github.com/vinothkumar-250/Coimbatore-travels-1.git'
+        BRANCH = 'main'
+        AWS_REGION = 'eu-north-1'
+        EB_APP_NAME = 'test'
+        EB_ENV_NAME = 'test-env'
+        S3_BUCKET_NAME = 'test-bucket-98941'
     }
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                git 'https://github.com/vinothkumar-250/Coimbatore-travels-1.git'
-            }
-        }
-
-        stage('Create Deployment Package') {
+        stage('Checkout') {
             steps {
                 script {
-                    sh "zip -r ${ZIP_FILE} . -x '*.git*' 'Jenkinsfile'"
+                    echo 'Cloning Git repository...'
+                    git branch: "${BRANCH}", url: "${GIT_REPO}"
                 }
             }
         }
 
-        stage('Deploy to AWS EB') {
+        stage('Build') {
             steps {
                 script {
-                    sh """
-                    aws elasticbeanstalk create-application-version \
-                        --application-name ${APP_NAME} \
-                        --version-label "build-${env.BUILD_NUMBER}" \
-                        --source-bundle S3Bucket="elasticbeanstalk-${AWS_REGION}-${APP_NAME}",S3Key="${ZIP_FILE}" \
-                        --region ${AWS_REGION}
+                    echo 'Building project using Maven...'
+                    sh 'mvn clean install'  // Modify this line if using another build tool
+                }
+            }
+        }
 
-                    aws elasticbeanstalk update-environment \
-                        --application-name ${APP_NAME} \
-                        --environment-name ${ENV_NAME} \
-                        --version-label "build-${env.BUILD_NUMBER}" \
-                        --region ${AWS_REGION}
-                    """
+        stage('Upload to S3') {
+            steps {
+                script {
+                    echo 'Uploading build artifacts to S3...'
+                    sh "aws s3 cp target/*.jar s3://${S3_BUCKET_NAME}/"  // Adjust file path if necessary
+                }
+            }
+        }
+
+        stage('Deploy to Elastic Beanstalk') {
+            steps {
+                script {
+                    echo 'Deploying to AWS Elastic Beanstalk...'
+                    // Configure AWS EB CLI (ensure AWS CLI is configured with appropriate permissions)
+                    sh 'eb init -p tomcat8 --region ${AWS_REGION} ${EB_APP_NAME}'
+                    sh 'eb use ${EB_ENV_NAME}'
+                    sh 'eb deploy'
                 }
             }
         }
     }
 
     post {
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs()  // Clean workspace after the pipeline execution
+        }
         success {
-            echo "Deployment successful!"
+            echo 'Build and deployment were successful!'
         }
         failure {
-            echo "Deployment failed! Check logs."
+            echo 'Build or deployment failed!'
         }
     }
 }
