@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coimbatore Travels - Your Trusted Partner</title>
-    <meta name="description" content="Coimbatore's best car rentals and tours. Explore Coimbatore with our reliable service and transparent pricing. Book your adventure today!">
+    <meta name="description"
+        content="Coimbatore's best car rentals and tours. Explore Coimbatore with our reliable service and transparent pricing. Book your adventure today!">
     <link rel="stylesheet" href="style.css">
     <style>
         /* Combined CSS Styles with Animations */
@@ -19,17 +21,26 @@
         }
 
         header {
-            background-color: #2c3e50; /* Darker header */
+            background-color: #2c3e50;
+            /* Darker header */
             color: white;
             padding: 2rem;
             text-align: center;
-            animation: fadeIn 1s ease-in-out; /* Header Fade-In */
+            animation: fadeIn 1s ease-in-out;
+            /* Header Fade-In */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         nav ul {
@@ -41,7 +52,8 @@
         }
 
         nav li {
-            margin: 0 1.5rem; /* Increased spacing */
+            margin: 0 1.5rem;
+            /* Increased spacing */
         }
 
         nav a {
@@ -52,7 +64,8 @@
         }
 
         nav a:hover {
-            color: #f0db4f; /* Highlight on hover */
+            color: #f0db4f;
+            /* Highlight on hover */
         }
 
         section {
@@ -63,12 +76,20 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             opacity: 0;
             transform: translateY(20px);
-            animation: fadeInUp 0.8s ease-in-out forwards; /* Section Fade-In */
+            animation: fadeInUp 0.8s ease-in-out forwards;
+            /* Section Fade-In */
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .vehicle-grid {
@@ -81,7 +102,8 @@
             border: 1px solid #ddd;
             padding: 1.5rem;
             text-align: center;
-            transition: all 0.3s ease; /* Hover Effect */
+            transition: all 0.3s ease;
+            /* Hover Effect */
             border-radius: 8px;
         }
 
@@ -118,7 +140,8 @@
         a.button {
             display: inline-block;
             padding: 1rem 2rem;
-            background-color: #27ae60; /* Green button */
+            background-color: #27ae60;
+            /* Green button */
             color: white;
             text-decoration: none;
             border-radius: 5px;
@@ -187,6 +210,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <header>
@@ -251,8 +275,7 @@
                 <p><b>Luggage:</b> 1-2 suitcases</p>
                 <a href="#contact" class="button">Book Now</a>
             </div>
-            <!-- Add similar vehicle items for SUV, Hatchback, etc. -->
-        </div>
+            </div>
     </section>
 
     <section id="coimbatore">
@@ -271,14 +294,10 @@
 
     <section id="about">
         <h2>About Coimbatore Travels</h2>
-        <p>Coimbatore Travels is dedicated to providing exceptional car rental and tour services in Coimbatore. We are a team of passionate locals committed to making your travel experience seamless and enjoyable.</p>
-        <p>Our mission is to offer reliable transportation solutions with transparent pricing and outstanding customer support.</p>
-    </section>
-
-    <section id="about test">
-        <h2>About Coimbatore Travels</h2>
-        <p>Coimbatore Travels is dedicated to providing exceptional car rental and tour services in Coimbatore. We are a team of passionate locals committed to making your travel experience seamless and enjoyable.</p>
-        <p>Our mission is to offer reliable transportation solutions with transparent pricing and outstanding customer support.</p>
+        <p>Coimbatore Travels is dedicated to providing exceptional car rental and tour services in Coimbatore. We are a team
+            of passionate locals committed to making your travel experience seamless and enjoyable.</p>
+        <p>Our mission is to offer reliable transportation solutions with transparent pricing and outstanding customer
+            support.</p>
     </section>
 
     <section id="contact">
@@ -295,7 +314,7 @@
             <label for="message">Message:</label>
             <textarea id="message" name="message" rows="5" required></textarea>
 
-            <button type="button" onclick="sendWhatsAppMessage()">Send Message</button>
+            <button type="button" onclick="sendWhatsAppMessage()">Send WhatsApp Message</button>
         </form>
 
         <p><b>Phone:</b> +91 9894188103</p>
@@ -310,15 +329,16 @@
         function sendWhatsAppMessage() {
             var name = document.getElementById('name').value;
             var email = document.getElementById('email').value;
-            var booking instructions = document.getElementById('message').value;
+            var message = document.getElementById('message').value;
 
-            var whatsappMessage = `Hello, my name is ${name}. You can contact me at ${email}. Message: ${message}`;
-            var whatsappNumber = "9894188103";
-            var whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
-            
+            var whatsappMessage = "Hello, my name is " + name + ". You can contact me at " + email + ". Message: " + message;
+            var whatsappNumber = "919894188103"; // Added country code
+            var whatsappLink = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(whatsappMessage);
+
             window.open(whatsappLink, '_blank');
         }
     </script>
 
 </body>
+
 </html>
